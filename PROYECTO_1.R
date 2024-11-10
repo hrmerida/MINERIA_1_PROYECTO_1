@@ -235,3 +235,47 @@ reglas_interesantes <- sort(reglas_apriori, by = "confidence", decreasing = TRUE
 # Paso 5: Inspeccionar las reglas interesantes
 inspect(reglas_interesantes)
 
+
+
+
+# Cargar las librerías necesarias
+library(arules)
+library(dplyr)
+
+# Paso 1: Filtrar solo los registros de egresos
+egresos_data <- datos_consolidados %>%
+  filter(tipo == "egresos-descentralizadas" | tipo == "egresos-gobierno-central")
+
+# Paso 2: Definir un umbral para "alto egreso" (por ejemplo, percentil 75) para identificar gastos significativos
+umbral_alto_egreso <- quantile(egresos_data$monto, 0.75, na.rm = TRUE)
+
+# Paso 3: Crear una variable binaria que indique si el egreso es alto
+egresos_data <- egresos_data %>%
+  mutate(alto_egreso = ifelse(monto >= umbral_alto_egreso, "Alto", "Bajo"))
+
+# Paso 4: Seleccionar columnas relevantes y convertirlas en factores para el algoritmo Apriori
+egresos_apriori <- egresos_data %>%
+  select(departamento, alto_egreso) %>%
+  mutate(across(everything(), as.factor))
+
+# Paso 5: Convertir el data frame en transacciones
+transacciones_egresos <- as(split(egresos_apriori, seq_len(nrow(egresos_apriori))), "transactions")
+
+# Paso 6: Configurar y ejecutar el algoritmo Apriori para encontrar patrones asociados con altos gastos
+# Ajustar el soporte y confianza para obtener más reglas si es necesario
+reglas_egresos <- apriori(transacciones_egresos, parameter = list(supp = 0.005, conf = 0.6))
+
+# Paso 7: Filtrar las reglas que incluyan "Alto" en la variable alto_egreso para identificar los departamentos con altos gastos
+reglas_interesantes <- subset(reglas_egresos, rhs %pin% "Alto")
+
+# Verificar si se generaron reglas antes de inspeccionar
+if (length(reglas_interesantes) > 0) {
+  # Ordenar y mostrar las reglas interesantes
+  reglas_interesantes <- sort(reglas_interesantes, by = "confidence", decreasing = TRUE)
+  
+  # Mostrar el top 10 de reglas asociadas con altos gastos por departamento
+  inspect(reglas_interesantes[1:10])
+} else {
+  print("No se generaron reglas que cumplan con los parámetros especificados.")
+}
+
