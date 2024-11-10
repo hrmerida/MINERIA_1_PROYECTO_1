@@ -236,3 +236,8 @@ reglas_interesantes <- sort(reglas_apriori, by = "confidence", decreasing = TRUE
 # Inspeccionar las reglas interesantes
 inspect(reglas_interesantes)
 
+
+
+
+
+ 
