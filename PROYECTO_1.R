@@ -208,36 +208,35 @@ datos_consolidados <- readRDS("datos_consolidados.rds")
 
 
 ##APRIORI
- 
+
 
 # Cargar las librerías necesarias
 library(arules)
 library(dplyr)
 
-# Seleccionar las columnas relevantes y convertirlas en factores
+# Paso 1: Filtrar los datos para excluir "NE" en clasificacion_gasto
 datos_apriori <- datos_consolidados %>%
+  filter(clasificacion_gasto != "NE") %>%  # Excluir registros con "NE" en clasificacion_gasto
   select(departamento, clasificacion_gasto, categoria_inversion, tipo, año) %>%
   mutate_all(as.factor)
 
-# Crear una matriz binaria para cada combinación de factores
+# Paso 2: Convertir los datos en una matriz de transacciones binaria
 datos_binarios <- as(datos_apriori, "transactions")
 
 # Verificar el resumen para asegurar que todo está correcto
 summary(datos_binarios)
 
-
-
-# Configurar y ejecutar el algoritmo Apriori con soporte y confianza mínimos
+# Paso 3: Configurar y ejecutar el algoritmo Apriori con soporte y confianza mínimos
 reglas_apriori <- apriori(datos_binarios, parameter = list(supp = 0.01, conf = 0.8))
 
-# Ordenar las reglas por confianza y seleccionar las 10 más fuertes
+# Paso 4: Ordenar las reglas por confianza y seleccionar las 10 más fuertes
 reglas_interesantes <- sort(reglas_apriori, by = "confidence", decreasing = TRUE)[1:10]
 
-# Inspeccionar las reglas interesantes
+# Paso 5: Inspeccionar las reglas interesantes
 inspect(reglas_interesantes)
 
 
 
-
-
+añskdfha
+asñdlkfjañsldf
  
