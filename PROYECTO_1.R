@@ -235,8 +235,3 @@ reglas_interesantes <- sort(reglas_apriori, by = "confidence", decreasing = TRUE
 # Paso 5: Inspeccionar las reglas interesantes
 inspect(reglas_interesantes)
 
-
-
-añskdfha
-asñdlkfjañsldf
- 
